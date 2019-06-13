@@ -1,53 +1,96 @@
 # DROP TABLES
 
-songplay_table_drop = "drop table songplays"
-user_table_drop = "drop table users"
-song_table_drop = "drop table songs"
-artist_table_drop = "drop table artists"
-time_table_drop = "drop table time"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays;"
+user_table_drop =     "DROP TABLE IF EXISTS users;"
+song_table_drop =     "DROP TABLE IF EXISTS songs;"
+artist_table_drop =   "DROP TABLE IF EXISTS artists;"
+time_table_drop =     "DROP TABLE IF EXISTS time;"
 
 # CREATE TABLES
 
-songplay_table_create = ("""create table if not exists songplays(songplay_id serial, start_time varchar, user_id varchar, level varchar, song_id varchar, artist_id varchar, session_id varchar, location varchar, user_agent varchar)
-""")
+songplay_table_create = ("""CREATE TABLE IF NOT EXISTS songplays(
+                            songplay_id SERIAL PRIMARY KEY, 
+                            start_time VARCHAR NOT NULL, 
+                            user_id INTEGER NOT NULL UNIQUE,
+                            level VARCHAR, 
+                            song_id VARCHAR, 
+                            artist_id VARCHAR, 
+                            session_id VARCHAR,
+                            location VARCHAR, 
+                            user_agent VARCHAR);
+                        """)
 
-user_table_create = ("""create table if not exists users(user_id varchar, first_name varchar, last_name varchar, gender varchar, level varchar)
-""")
+user_table_create =     ("""CREATE TABLE IF NOT EXISTS users(
+                            user_id INTEGER PRIMARY KEY, 
+                            first_name VARCHAR,
+                            last_name VARCHAR, 
+                            gender VARCHAR , 
+                            level VARCHAR);
+                         """)
 
-song_table_create = ("""create table if not exists songs(song_id varchar, title varchar, artist_id varchar, year int, duration float)""")
+song_table_create =     ("""CREATE TABLE IF NOT EXISTS songs(
+                            song_id VARCHAR PRIMARY KEY, 
+                            title VARCHAR,
+                            artist_id VARCHAR NOT NULL, 
+                            year INTEGER, 
+                            duration FLOAT);
+                        """)
 
-artist_table_create = ("""create table if not exists artists(artist_id varchar, name varchar, location varchar, latitude numeric, longitude numeric)
-""")
+artist_table_create =   ("""CREATE TABLE IF NOT EXISTS artists(
+                            artist_id VARCHAR PRIMARY KEY, 
+                            name VARCHAR, 
+                            location VARCHAR, 
+                            latitude FLOAT, 
+                            longitude FLOAT);
+                        """)
 
-time_table_create = ("""create table if not exists time(start_time varchar, hour int, day int, week int, month int, year int, weekday varchar)
-""")
+time_table_create =     ("""CREATE TABLE IF NOT EXISTS time(
+                            start_time TIMESTAMP PRIMARY KEY, 
+                            hour INTEGER NOT NULL, 
+                            day INTEGER NOT NULL,
+                            week INTEGER NOT NULL, 
+                            month INTEGER NOT NULL, 
+                            year INTEGER NOT NULL, 
+                            weekday VARCHAR NOT NULL);
+                        """)
 
 # INSERT RECORDS
 
-songplay_table_insert = ("""insert into songplays(start_time, user_id, level , song_id, artist_id, session_id, location, user_agent) values(%s,%s,%s,%s,%s,%s,%s,%s) 
-""")
+songplay_table_insert = ("""INSERT INTO songplays(start_time, user_id, level , song_id, 
+                            artist_id, session_id, location, user_agent) 
+                            VALUES(%s,%s,%s,%s,%s,%s,%s,%s) 
+                            ON CONFLICT (user_id) DO UPDATE SET level=EXCLUDED.level;
+                        """)
 
-user_table_insert = ("""insert into users(user_id , first_name , last_name , gender , level) values(%s,%s,%s,%s,%s) 
-""")
+user_table_insert =     ("""INSERT INTO users(user_id , first_name , last_name , gender , level) 
+                            VALUES(%s,%s,%s,%s,%s)
+                            ON CONFLICT ON CONSTRAINT users_pkey DO NOTHING;
+                        """)
 
-song_table_insert = ("""insert into songs(song_id, title, artist_id, year, duration) VALUES(%s,%s,%s,%s,%s)""")
+song_table_insert =     ("""INSERT INTO songs(song_id, title, artist_id, year, duration) 
+                            VALUES(%s,%s,%s,%s,%s)
+                            ON CONFLICT ON CONSTRAINT songs_pkey DO NOTHING;
+                        """)
 
-artist_table_insert = ("""insert into artists(artist_id, name, location, latitude, longitude) values(%s,%s,%s,%s,%s) 
-""")
+artist_table_insert =   ("""INSERT INTO artists(artist_id, name, location, latitude, longitude) 
+                            VALUES(%s,%s,%s,%s,%s)
+                            ON CONFLICT ON CONSTRAINT artists_pkey DO NOTHING;
+                        """)
 
-
-time_table_insert = ("""insert into time(start_time, hour, day, week, month, year, weekday) values(%s,%s,%s,%s,%s,%s,%s) 
-""")
+time_table_insert =     ("""INSERT INTO time(start_time, hour, day, week, month, year, weekday) 
+                            VALUES(%s,%s,%s,%s,%s,%s,%s)
+                            ON CONFLICT ON CONSTRAINT time_pkey DO NOTHING;
+                        """)
 
 # FIND SONGS
 
-song_select = ("""select a.song_id,b.artist_id
-                  from songs as a join artists as b
-                  on a.artist_id=b.artist_id
-                  where a.title=%s
-                  and b.name=%s
-                  and a.duration=%s
-               """)
+song_select =           ("""SELECT a.song_id,b.artist_id 
+                            FROM songs as a join artists as b 
+                            ON a.artist_id=b.artist_id 
+                            WHERE a.title=%s 
+                            AND b.name=%s 
+                            AND a.duration=%s 
+                          """)
 
 # QUERY LISTS
 

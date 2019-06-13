@@ -6,19 +6,43 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """
+    Description: This function can be used to read the file in the filepath (data/song_data)
+    to get the song and artist info and used to populate the songs and artists dim tables.
+
+    Arguments:
+        cur: the cursor object. 
+        filepath: song data file path. 
+
+    Returns:
+        None
+    """
     # open song file
     df = pd.read_json(filepath,lines=True)
 
     # insert song record
-    song_data = tuple(df[['song_id','title','artist_id','year','duration']].values[0])
+    song_data = tuple(df[['song_id','title','artist_id',\
+               'year','duration']].values[0])
     cur.execute(song_table_insert, song_data)
     
     # insert artist record
-    artist_data = df[['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']].values[0].tolist()
+    artist_data = df[['artist_id','artist_name','artist_location',\
+                      'artist_latitude','artist_longitude']].values[0].tolist()
     cur.execute(artist_table_insert, artist_data)
 
 
 def process_log_file(cur, filepath):
+    """
+    Description: This function can be used to read the file in the filepath (data/log_data)
+    to get the user and time info and used to populate the users and time dim tables.
+
+    Arguments:
+        cur: the cursor object. 
+        filepath: log data file path. 
+
+    Returns:
+        None
+    """    
     # open log file
     df = pd.read_json(filepath,lines=True)
 
@@ -29,7 +53,8 @@ def process_log_file(cur, filepath):
     t = pd.to_datetime(df['ts'])
     
     # insert time data records
-    time_data ={'timestamp':t,'hour':t.dt.hour,'day':t.dt.day,'week_of_year':t.dt.weekofyear,'month':t.dt.month,'year':t.dt.year,'weekday':t.dt.weekday} 
+    time_data ={'timestamp':t,'hour':t.dt.hour,'day':t.dt.day,'week_of_year':t.dt.weekofyear,\
+                'month':t.dt.month,'year':t.dt.year,'weekday':t.dt.weekday} 
     column_labels =('timestamp', 'hour', 'day', 'week_of_year', 'month', 'year', 'weekday') 
     time_df = pd.DataFrame(time_data,columns=column_labels)
 
@@ -56,11 +81,25 @@ def process_log_file(cur, filepath):
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = (row.ts,row.userId,row.level,songid,artistid,row.sessionId,row.location,row.userAgent)
+        songplay_data = (row.ts,row.userId,row.level,songid,artistid,\
+                         row.sessionId,row.location,row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    Description: This function can be used to get the pathnames and file names of 
+    all the files present in the directories\subdirectories.
+
+    Arguments:
+        cur: the cursor object.
+        conn: the connection object.
+        filepath: log data file path. 
+        func: Function name is to be called.
+
+    Returns:
+        None
+    """    
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):

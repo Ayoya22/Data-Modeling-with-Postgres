@@ -22,10 +22,10 @@ def create_database():
     return cur, conn
 
 
-# def drop_tables(cur, conn):
-#     for query in drop_table_queries:
-#         cur.execute(query)
-#         conn.commit()
+def drop_tables(cur, conn):
+    for query in drop_table_queries:
+        cur.execute(query)
+        conn.commit()
 
 
 def create_tables(cur, conn):
@@ -37,7 +37,7 @@ def create_tables(cur, conn):
 def main():
     cur, conn = create_database()
     
-   # drop_tables(cur, conn)
+    drop_tables(cur, conn)
     create_tables(cur, conn)
 
     conn.close()
